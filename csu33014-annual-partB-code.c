@@ -48,7 +48,6 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
   if(steps_remaining > 0)
   {
     int num_known = person_get_num_known(current);
-    #pragma omp for
     for (int i = 0; i < num_known; i++)
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
@@ -134,7 +133,6 @@ for(int i = 0 ; i < total_people; i++){
 
 find_reachable_recursive3(start, k, reachable, steps);
 count = 0;
-#pragma omp for
 
 for(int i =0; i < total_people; i++){
 
