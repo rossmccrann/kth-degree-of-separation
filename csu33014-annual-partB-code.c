@@ -54,9 +54,17 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
   
-  #pragma omp task
+#pragma omp parallel 
 
 {
+
+#pragma omp single
+
+{
+
+  #pragma omp task
+{
+
 
      if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
     
@@ -65,7 +73,7 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
 
     }
 
-}
+}}}
 
 }
 
