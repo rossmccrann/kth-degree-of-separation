@@ -25,17 +25,17 @@ void find_reachable_recursive(struct person * current, int steps_remaining,
   }
 }
 
-void lr_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int depth){
+void lr_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int steps){
 
-  reachable[person_get_index(current)] = depth - steps_remaining;
+  reachable[person_get_index(current)] = steps - steps_remaining;
   if(steps_remaining > 0)
   {
     int num_known = person_get_num_known(current);
     for (int i = 0; i < num_known; i++)
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
-     if(reachable[person_get_index(acquaintance)] > reachable-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
-       lr_reachable_recursive(acquaintance, steps_remaining-1, reachable, depth);
+     if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
+       lr_reachable_recursive(acquaintance, steps_remaining-1, reachable, steps);
     }
 
 }
@@ -43,8 +43,8 @@ void lr_reachable_recursive(struct person * current, int steps_remaining, int * 
 
 }
 
-void parallel_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int depth){
-  reachable[person_get_index(current)] = depth - steps_remaining;
+void parallel_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int steps){
+  reachable[person_get_index(current)] = steps - steps_remaining;
 
   if(steps_remaining > 0)
   {
@@ -57,9 +57,9 @@ void parallel_reachable_recursive(struct person * current, int steps_remaining, 
       struct person* acquaintance = person_get_acquaintance(current, i);
   
 
-     if(reachable[person_get_index(acquaintance)] > depth-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
+     if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
     
-       parallel_reachable_recursive(acquaintance, steps_remaining-1, reachable, depth);
+       parallel_reachable_recursive(acquaintance, steps_remaining-1, reachable, steps);
 }
 
     }
@@ -82,7 +82,7 @@ int number_within_k_degrees(struct person * start, int total_people, int k) {
     reachable[i] = false;
   }
 
-  // now search for all people who are reachable with k depth
+  // now search for all people who are reachable with k steps
   find_reachable_recursive(start, k, reachable);
 
   // all visited people are marked reachable, so count them
@@ -104,13 +104,13 @@ int less_redundant_number_within_k_degrees(struct person * start,
 
 int* reachable;
 reachable = malloc(sizeof(int)*total_people);
-int depth = k;
+int steps = k;
 
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
-//pthread_create(&tid, NULL, find_reachable_recursive2, (start, k, reachable, depth)) ; 
-lr_reachable_recursive(start, k, reachable, depth);
+//pthread_create(&tid, NULL, find_reachable_recursive2, (start, k, reachable, steps)) ; 
+lr_reachable_recursive(start, k, reachable, steps);
 int count = 0;
 
 for(int i =0; i < total_people; i++){
