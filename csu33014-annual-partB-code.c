@@ -119,20 +119,22 @@ return count;
 // computes the number of people within k degrees of the start person;
 // parallel version of the code
 int parallel_number_within_k_degrees(struct person * start, int total_people, int k) {
-int count;
 int* reachable;
-
 reachable = malloc(sizeof(int)*total_people);
-int steps = k;
+
+int depth = k;
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
-#pragma omp parallel{
-#pragma omp single{
-find_reachable_recursive3(start, k, reachable, steps);
+
+#pragma omp parallel 
+{
+#pragma omp single
+{
+find_reachable_recursive3(start, k, reachable, depth);
 }
 }
-count = 0;
+int count = 0;
 for(int i =0; i < total_people; i++){
 
   if(reachable[i] != 0){
