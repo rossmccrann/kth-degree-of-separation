@@ -125,7 +125,7 @@ int* reachable;
 reachable = malloc(sizeof(int)*total_people);
 int steps = k;
 
-#pragma omp parallel for collapse(2);
+#pragma omp parallel for;
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
@@ -133,6 +133,7 @@ for(int i = 0 ; i < total_people; i++){
 
 find_reachable_recursive3(start, k, reachable, steps);
 count = 0;
+#pragma omp parallel for;
 
 for(int i =0; i < total_people; i++){
 
