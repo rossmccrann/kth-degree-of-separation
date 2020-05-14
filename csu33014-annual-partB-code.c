@@ -55,7 +55,7 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
 
      if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
 
-       find_reachable_recursive2(acquaintance, steps_remaining-1, reachable, steps);
+       find_reachable_recursive3(acquaintance, steps_remaining-1, reachable, steps);
 
     }
 
