@@ -25,7 +25,7 @@ void find_reachable_recursive(struct person * current, int steps_remaining,
   }
 }
 
-void find_reachable_recursive2(struct person * current, int steps_remaining, int * reachable, int steps){
+void lr_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int steps){
 
   reachable[person_get_index(current)] = steps - steps_remaining;
   if(steps_remaining > 0)
@@ -35,7 +35,7 @@ void find_reachable_recursive2(struct person * current, int steps_remaining, int
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
      if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
-       find_reachable_recursive2(acquaintance, steps_remaining-1, reachable, steps);
+       lr_reachable_recursive(acquaintance, steps_remaining-1, reachable, steps);
     }
 
 }
@@ -43,14 +43,13 @@ void find_reachable_recursive2(struct person * current, int steps_remaining, int
 
 }
 
-void find_reachable_recursive3(struct person * current, int steps_remaining, int * reachable, int steps){
+void parallel_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int steps){
   reachable[person_get_index(current)] = steps - steps_remaining;
 
   if(steps_remaining > 0)
   {
     int num_known = person_get_num_known(current);
   #pragma omp task
-
 {
 
     for (int i = 0; i < num_known; i++)
@@ -60,7 +59,7 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
 
      if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
     
-       find_reachable_recursive3(acquaintance, steps_remaining-1, reachable, steps);
+       parallel_reachable_recursive(acquaintance, steps_remaining-1, reachable, steps);
 }
 
     }
@@ -111,7 +110,7 @@ for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
 //pthread_create(&tid, NULL, find_reachable_recursive2, (start, k, reachable, steps)) ; 
-find_reachable_recursive2(start, k, reachable, steps);
+lr_reachable_recursive(start, k, reachable, steps);
 int count = 0;
 
 for(int i =0; i < total_people; i++){
@@ -140,7 +139,7 @@ omp_set_num_threads(4); // Use 4 threads for all consecutive parallel regions
 #pragma omp single
 {
 
-find_reachable_recursive3(start, k, reachable, depth);
+parallel_reachable_recursive(start, k, reachable, depth);
 }
 }
 
