@@ -25,25 +25,24 @@ void find_reachable_recursive(struct person * current, int steps_remaining,
   }
 }
 
-void lr_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int depth){
-
-  reachable[person_get_index(current)] = depth - steps_remaining;
+void lr_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int distance){
+  reachable[person_get_index(current)] = distance - steps_remaining;
   if(steps_remaining > 0)
   {
     int num_known = person_get_num_known(current);
     for (int i = 0; i < num_known; i++)
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
-     if(reachable[person_get_index(acquaintance)] > depth-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
-       lr_reachable_recursive(acquaintance, steps_remaining-1, reachable, depth);
+     if(reachable[person_get_index(acquaintance)] > distance-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
+       lr_reachable_recursive(acquaintance, steps_remaining-1, reachable, distance);
     }
 }
 }
 
 }
 
-void parallel_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int depth){
-  reachable[person_get_index(current)] = depth - steps_remaining;
+void parallel_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int distance){
+  reachable[person_get_index(current)] = distance - steps_remaining;
 
   if(steps_remaining > 0)
   {
@@ -56,9 +55,9 @@ void parallel_reachable_recursive(struct person * current, int steps_remaining, 
       struct person* acquaintance = person_get_acquaintance(current, i);
   
 
-     if(reachable[person_get_index(acquaintance)] > depth-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
+     if(reachable[person_get_index(acquaintance)] > distance-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
     
-       parallel_reachable_recursive(acquaintance, steps_remaining-1, reachable, depth);
+       parallel_reachable_recursive(acquaintance, steps_remaining-1, reachable, distance);
 }
 
     }
@@ -80,7 +79,7 @@ int number_within_k_degrees(struct person * start, int total_people, int k) {
     reachable[i] = false;
   }
 
-  // now search for all people who are reachable with k depth
+  // now search for all people who are reachable with k distance
   find_reachable_recursive(start, k, reachable);
 
   // all visited people are marked reachable, so count them
@@ -102,15 +101,15 @@ int less_redundant_number_within_k_degrees(struct person * start,
 
 int* reachable;
 reachable = malloc(sizeof(int)*total_people);
-int depth = k;
+int distance = k;
 
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
-//pthread_create(&tid, NULL, find_reachable_recursive2, (start, k, reachable, depth)) ; 
-lr_reachable_recursive(start, k, reachable, depth);
-int count = 0;
+lr_reachable_recursive(start, k, reachable, distance);
 
+// all visited people are marked reachable, so count them
+int count = 0;
 for(int i =0; i < total_people; i++){
   if(reachable[i] != 0){
     count = count + 1;
@@ -123,9 +122,10 @@ return count;
 // parallel version of the code
 int parallel_number_within_k_degrees(struct person * start, int total_people, int k) {
 int * reachable;
+// change reachable to ints
 reachable = malloc(sizeof(int)*total_people);
 
-int depth = k;
+int distance = k;
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
@@ -134,27 +134,26 @@ omp_set_num_threads(4); // Use 4 threads for all consecutive parallel regions
 
 #pragma omp parallel 
 {
-#pragma omp single
+#pragma omp single nowait
 {
-parallel_reachable_recursive(start, k, reachable, depth);
+parallel_reachable_recursive(start, k, reachable, distance);
 }
 }
 
+// all visited people are marked reachable, so count them
 int count = 0;
 for(int i =0; i < total_people; i++){
-
   if(reachable[i] != 0){
     count = count + 1;
   }
-
 }
 
 return count;
 }
 
 /*
-I replaced the Boolean reachable array (  reachable[person_get_index(current)] = true;) with an array of ints as the integer value 
-can be utilised as the distance from the intial person  ( person * start) to the nth person in the array.
+I replaced the Boolean reachable array (reachable[person_get_index(current)] = true;) with an array of ints (int   reachable[i] = 0;) as the integer value 
+can be utilised to optimise the code. The as the distance from the intial person  ( person * start) to the nth person in the array.
 
 The best way to parrallelise the code is to use the OpenMP parallel pragma.The block after the #pragma omp parallel is executed
 by a group of threads. The task is split up and ran simultaneously on multiple processors with different inputs so that the result 
