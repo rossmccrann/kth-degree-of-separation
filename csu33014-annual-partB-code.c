@@ -37,7 +37,6 @@ void lr_reachable_recursive(struct person * current, int steps_remaining, int * 
      if(reachable[person_get_index(acquaintance)] > depth-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
        lr_reachable_recursive(acquaintance, steps_remaining-1, reachable, depth);
     }
-
 }
 }
 
@@ -69,7 +68,6 @@ void parallel_reachable_recursive(struct person * current, int steps_remaining, 
 }
 
 }
-
 
 // computes the number of people within k degrees of the start person
 int number_within_k_degrees(struct person * start, int total_people, int k) {
@@ -128,7 +126,6 @@ int * reachable;
 reachable = malloc(sizeof(int)*total_people);
 
 int depth = k;
-#pragma omp for
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
@@ -144,7 +141,6 @@ parallel_reachable_recursive(start, k, reachable, depth);
 }
 
 int count = 0;
-#pragma omp for
 for(int i =0; i < total_people; i++){
 
   if(reachable[i] != 0){
@@ -154,5 +150,24 @@ for(int i =0; i < total_people; i++){
 }
 
 return count;
-
 }
+
+/*
+I replaced the Boolean reachable array (  reachable[person_get_index(current)] = true;) with an array of ints as the integer value 
+can be utilised as the distance from the intial person  ( person * start) to the nth person in the array.
+
+The best way to parrallelise the code is to use the OpenMP parallel pragma.The block after the #pragma omp parallel is executed
+by a group of threads. The task is split up and ran simultaneously on multiple processors with different inputs so that the result 
+is obtained faster.
+
+The OpenMP Single ensures that the recursive function (parallel_reachable_recursive) will only be executed once by single thread. 
+
+
+
+
+
+*/
+
+
+
+
