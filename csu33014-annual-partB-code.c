@@ -42,7 +42,7 @@ void find_reachable_recursive2(struct person * current, int steps_remaining, int
 }
 }
 
-void find_reachable_recursive3(struct person * current, int steps_remaining, int * reachable, int steps){
+void find_reachable_recursive3(struct person * current, int steps_remaining, int * reachable){
   reachable[person_get_index(current)] = steps - steps_remaining;
 
   if(steps_remaining > 0)
@@ -55,7 +55,7 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
 
      if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
 
-       find_reachable_recursive2(acquaintance, steps_remaining-1, reachable, steps);
+       find_reachable_recursive3(acquaintance, steps_remaining-1, reachable);
 
     }
 
@@ -123,13 +123,14 @@ int count;
 int* reachable;
 
 reachable = malloc(sizeof(int)*total_people);
-int steps = k;
+
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
 
 #pragma omp single
-find_reachable_recursive3(start, k, reachable, steps);
+find_reachable_recursive3(start, k, reachable);
+
 count = 0;
 for(int i =0; i < total_people; i++){
 
