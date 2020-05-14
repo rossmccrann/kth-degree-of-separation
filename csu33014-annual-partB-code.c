@@ -56,9 +56,10 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
       struct person* acquaintance = person_get_acquaintance(current, i);
   #pragma omp task
 {
+        printf("Hello world from omp thread %d\n", omp_get_thread_num());
 
      if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
-  
+    
        find_reachable_recursive3(acquaintance, steps_remaining-1, reachable, steps);
 }
 
@@ -136,7 +137,6 @@ for(int i = 0 ; i < total_people; i++){
 {
 #pragma omp single
 {
-  printf("Hello world from omp thread %d\n", omp_get_thread_num());
 
 find_reachable_recursive3(start, k, reachable, depth);
 }
