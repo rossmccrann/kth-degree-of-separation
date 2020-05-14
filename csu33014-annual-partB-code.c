@@ -33,7 +33,7 @@ void lr_reachable_recursive(struct person * current, int steps_remaining, int * 
     for (int i = 0; i < num_known; i++)
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
-      if(reachable[person_get_index(aquaintance)] == 0 || distance - steps_remaining < reachable[person_get_index(aquaintance)]){
+     if(reachable[person_get_index(acquaintance)] > distance-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
        lr_reachable_recursive(acquaintance, steps_remaining-1, reachable, distance);
     }
 }
@@ -55,7 +55,7 @@ void parallel_reachable_recursive(struct person * current, int steps_remaining, 
       struct person* acquaintance = person_get_acquaintance(current, i);
   
 
-      if(reachable[person_get_index(aquaintance)] == 0 || distance - steps_remaining < reachable[person_get_index(aquaintance)]){
+     if(reachable[person_get_index(acquaintance)] > distance-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
     
        parallel_reachable_recursive(acquaintance, steps_remaining-1, reachable, distance);
 }
