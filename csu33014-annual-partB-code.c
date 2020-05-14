@@ -136,9 +136,14 @@ for(int i = 0 ; i < total_people; i++){
 {
 #pragma omp single
 {
+  printf("Hello world from omp thread %d\n", omp_get_thread_num(););
+
 find_reachable_recursive3(start, k, reachable, depth);
 }
 }
+
+
+
 
 int count = 0;
 
