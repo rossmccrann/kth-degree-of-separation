@@ -70,7 +70,7 @@ void find_reachable_recursive(struct person * current, int steps_remaining,
     }
   }
 }
-
+// less redundant recursive function
 void lr_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int distance) {
   int curr = distance - steps_remaining; // current = the distance - the number of steps remaining
   reachable[person_get_index(current)] = curr; // set value of current person
@@ -87,9 +87,9 @@ void lr_reachable_recursive(struct person * current, int steps_remaining, int * 
       }
     }
   }
-
 }
 
+// parallel recursive function
 void parallel_reachable_recursive(struct person * current, int steps_remaining, int * reachable, int distance) {
   int curr = distance - steps_remaining;
   reachable[person_get_index(current)] = curr;
@@ -190,6 +190,5 @@ int parallel_number_within_k_degrees(struct person * start, int total_people, in
       count = count + 1;
     }
   }
-
   return count;
 }
