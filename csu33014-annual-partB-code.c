@@ -128,6 +128,7 @@ int * reachable;
 reachable = malloc(sizeof(int)*total_people);
 
 int depth = k;
+#pragma omp for
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
