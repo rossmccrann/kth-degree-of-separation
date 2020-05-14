@@ -125,7 +125,8 @@ int* reachable;
 reachable = malloc(sizeof(int)*total_people);
 int steps = k;
 
-#pragma omp parallel for
+#pragma omp parallel
+#pragma omp for
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
