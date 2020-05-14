@@ -132,6 +132,8 @@ int depth = k;
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
+omp_set_dynamic(0);     // Explicitly disable dynamic teams
+omp_set_num_threads(4); // Use 4 threads for all consecutive parallel regions
 
 #pragma omp parallel 
 {
