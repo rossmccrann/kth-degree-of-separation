@@ -33,7 +33,7 @@ void lr_reachable_recursive(struct person * current, int steps_remaining, int * 
     for (int i = 0; i < num_known; i++)
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
-     if(reachable[person_get_index(acquaintance)] > distance-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
+      if(reachable[person_get_index(aquaintance)] == 0 || distance - steps_remaining < reachable[person_get_index(aquaintance)]){
        lr_reachable_recursive(acquaintance, steps_remaining-1, reachable, distance);
     }
 }
@@ -55,7 +55,7 @@ void parallel_reachable_recursive(struct person * current, int steps_remaining, 
       struct person* acquaintance = person_get_acquaintance(current, i);
   
 
-     if(reachable[person_get_index(acquaintance)] > distance-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
+      if(reachable[person_get_index(aquaintance)] == 0 || distance - steps_remaining < reachable[person_get_index(aquaintance)]){
     
        parallel_reachable_recursive(acquaintance, steps_remaining-1, reachable, distance);
 }
@@ -152,15 +152,36 @@ return count;
 }
 
 /*
-I replaced the Boolean reachable array (reachable[person_get_index(current)] = true;) with an array of ints (int   reachable[i] = 0;) as the integer value 
-can be utilised to optimise the code. The as the distance from the intial person  ( person * start) to the nth person in the array.
 
-The best way to parrallelise the code is to use the OpenMP parallel pragma.The block after the #pragma omp parallel is executed
-by a group of threads. The task is split up and ran simultaneously on multiple processors with different inputs so that the result 
+*** Optimised number within k degrees using Recursion ***
+
+I replaced the Boolean reachable array (reachable[person_get_index(current)] = true;)
+with an array of ints (int   reachable[i] = 0;) as the integer value can be utilised 
+to optimise the code. Each int reacable[i] represents the distance from the intial 
+person ( person * start) to the nth aquaintance in the array.
+If you are at the current person '(person_get_acquaintance(current, i)' it checks the 
+distance that it is from starting to the distance of the potential aquaintance that it
+wants to get to. If the aquaintances distance is greater than the current distance then 
+that aquaintace has already been visited as all of the initial values are set to zero. 
+Hence if the distance is greater than the current value then it has been visited.
+This is represented with an if statement around the recursive call 
+
+*** Parallelisation using OpenMP ***
+
+The best way to parrallelise the code is to use the OpenMP parallel pragma.The block 
+after the #pragma omp parallel is executed by a group of threads. The task is split up
+and ran simultaneously on multiple processors with different inputs so that the result 
 is obtained faster.
 
-The OpenMP Single ensures that the recursive function (parallel_reachable_recursive) will only be executed once by single thread. 
+I use 'omp_set_dynamic(0);' to explicitly disable dynamic teams and then use 
+'omp_set_num_threads(4);' to override the value of the environmental variable that controls
+the upper limit of the size of the thread team that is created for all of the parrallel 
+segments in the code.
 
+
+The OpenMP Single ensures that the recursive function (parallel_reachable_recursive) will 
+only be executed once by single thread. The OpenMp pragma nowait turn off the barrier on 
+the sinle however there is already a barrier on the parallel.
 
 
 
