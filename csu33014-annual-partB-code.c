@@ -14,16 +14,17 @@ I replaced the Boolean reachable array (reachable[person_get_index(current)] = t
 with an array of ints (int   reachable[i] = 0;) as the integer value can be utilised
 to optimise the code. Each int reachable[i] represents the distance from the intial
 person ( person * start) to the ith aquaintance in the array.
+
 If you are at the current person '(person_get_acquaintance(current, i)' it checks the
 distance that it is from current starting to the distance of the potential aquaintance that it
 wants to get to. If the current distance ('distance - steps_remaining') is less than the
 reachable distance of the aquaintance OR the distance of the reachable aquaintance is equal to 0
 then the recursive function is called and the steps_remaining is decremented by 1 as all of the
-values in the reachable array were initially set to zero. This is represented with an if statement
-around the recursive call.
+values in the reachable array were initially set to zero (unvisited). This is represented with an 
+if statement around the recursive call.
 
 Using these alterations the code is effectively optimised and is much faster than unoptomised
-code with all inputs.
+code with all input sizes.
 
 *** Parallelisation using OpenMP ***
 
@@ -43,9 +44,13 @@ The OpenMP Single ensures that the recursive function (parallel_reachable_recurs
 only be executed once by single thread. The OpenMp pragma nowait turns off the barrier on
 the single however there is already a barrier on the parallel.
 
+Parallelising the for loop that initialised reachable to 0 proved and the for loop that
+counted visited people proved ineffective in reducing run time.
+
 Using these OpenMP Pragma the code is effectively parrallelised ensuring that the result is
 obtained on average over twice as fast at the already optimised code (less_redundant) and is
-much faster on larger input sizes.
+much faster on larger input sizes. Parrallelised version is much slower if the input is suffiently
+smal in which case the parrallelised method is not used.
 
 */
 
@@ -81,7 +86,8 @@ void lr_reachable_recursive(struct person * current, int steps_remaining, int * 
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
       // If the current distance is less than the reachable distance of the aquaintace
-      //OR the distance of the reachable aquaintance is equal to 0 then the recursive function called
+      //OR the distance of the reachable aquaintance is equal to 0 then the recursive function called 
+      //steps_remaining decremented
       if (reachable[person_get_index(acquaintance)] ==  0 || curr < reachable[person_get_index(acquaintance)]) {
         lr_reachable_recursive(acquaintance, steps_remaining - 1, reachable, distance);
       }
@@ -140,14 +146,16 @@ int number_within_k_degrees(struct person * start, int total_people, int k) {
 // computes the number of people within k degrees of the start person;
 // less repeated computation than the simple original version
 int less_redundant_number_within_k_degrees(struct person * start, int total_people, int k) {
-
+  //reachable altered to int. Used as flag to indicate if visted and distance
   int* reachable;
-  reachable = malloc(sizeof(int) * total_people);
+  reachable = malloc(sizeof(int) * total_people); // allocate space
 
   for (int i = 0 ; i < total_people; i++) {
-    reachable[i] = 0;
+    reachable[i] = 0;   //initialise to zero
   }
-  int distance = k;
+  int distance = k; // initialised to k degree of start person
+
+
   lr_reachable_recursive(start, k, reachable, distance);
 
 // all visited people are marked reachable, so count them
@@ -163,21 +171,21 @@ int less_redundant_number_within_k_degrees(struct person * start, int total_peop
 // computes the number of people within k degrees of the start person;
 // parallel version of the code
 int parallel_number_within_k_degrees(struct person * start, int total_people, int k) {
+  //reachable altered to int. Used as flag to indicate if visted and distance
   int * reachable;
-// change reachable to ints
   reachable = malloc(sizeof(int) * total_people);
 
   for (int i = 0 ; i < total_people; i++) {
-    reachable[i] = 0;
+    reachable[i] = 0;   //initialise to zero
   }
-  int distance = k;
+  int distance = k; // initialised to k degree of start person
 
   omp_set_dynamic(0);     // Explicitly disable dynamic teams
   omp_set_num_threads(4); // Use 4 threads for all consecutive parallel regions
 
-  #pragma omp parallel
+  #pragma omp parallel // Block after execited by team of threads 
   {
-    #pragma omp single nowait
+    #pragma omp single nowait // Ensures only executed by single thread
     {
       parallel_reachable_recursive(start, k, reachable, distance);
     }
