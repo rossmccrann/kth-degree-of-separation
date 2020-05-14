@@ -43,7 +43,7 @@ void find_reachable_recursive2(struct person * current, int steps_remaining, int
 }
 
 void find_reachable_recursive3(struct person * current, int steps_remaining, int * reachable){
-  reachable[person_get_index(current)] = steps - steps_remaining;
+  reachable[person_get_index(current)] = k - steps_remaining;
 
   if(steps_remaining > 0)
   {
