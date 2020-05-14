@@ -124,8 +124,7 @@ int* reachable;
 reachable = malloc(sizeof(int)*total_people);
 int steps = k;
 
-#pragma omp parallel
-#pragma omp for
+#pragma omp parallel for if(total_people > 100) private(i) shared(reach);
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
