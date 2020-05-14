@@ -50,7 +50,6 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
   {
     int num_known = person_get_num_known(current);
 
-    #pragma omp for
     for (int i = 0; i < num_known; i++)
     {
 
