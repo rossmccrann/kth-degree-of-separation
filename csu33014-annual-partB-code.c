@@ -49,22 +49,14 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
   if(steps_remaining > 0)
   {
     int num_known = person_get_num_known(current);
+  #pragma omp task
+
+{
 
     for (int i = 0; i < num_known; i++)
     {
       struct person* acquaintance = person_get_acquaintance(current, i);
   
-#pragma omp parallel 
-
-{
-
-#pragma omp single
-
-{
-
-  #pragma omp task
-{
-
 
      if(reachable[person_get_index(acquaintance)] > steps-steps_remaining || reachable[person_get_index(acquaintance)]==  0){
     
@@ -73,7 +65,7 @@ void find_reachable_recursive3(struct person * current, int steps_remaining, int
 
     }
 
-}}}
+}
 
 }
 
@@ -140,6 +132,8 @@ int depth = k;
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
+omp_set_dynamic(0);     // Explicitly disable dynamic teams
+omp_set_num_threads(4); // Use 4 threads for all consecutive parallel regions
 
 #pragma omp parallel 
 {
