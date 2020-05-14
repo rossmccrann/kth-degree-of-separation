@@ -127,7 +127,7 @@ reachable = malloc(sizeof(int)*total_people);
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
-
+#pragma omp parallel
 #pragma omp single
 find_reachable_recursive3(start, k, reachable);
 
