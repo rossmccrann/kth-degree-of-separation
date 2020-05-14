@@ -124,6 +124,7 @@ int* reachable;
 
 reachable = malloc(sizeof(int)*total_people);
 int steps = k;
+#pragma omp for
 for(int i = 0 ; i < total_people; i++){
   reachable[i] = 0;
 }
@@ -131,6 +132,7 @@ for(int i = 0 ; i < total_people; i++){
 #pragma omp single
 find_reachable_recursive3(start, k, reachable, steps);
 count = 0;
+#pragma omp for
 for(int i =0; i < total_people; i++){
 
   if(reachable[i] != 0){
